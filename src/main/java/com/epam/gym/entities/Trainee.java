@@ -33,7 +33,7 @@ public class Trainee {
     @Column(name = "id", nullable = false, unique = true)
 	private Long id;
 	
-	@OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
 	@JoinColumn(name="user_id",nullable=false)
 	private User user;
 	

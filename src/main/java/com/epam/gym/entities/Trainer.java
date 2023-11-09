@@ -25,14 +25,14 @@ import jakarta.persistence.Index;
 		@Index(name="idx_trainer_userid",columnList="user_id"),
 		@Index(name="idx_trainer_specializationid",columnList="specialization_id")
 })
-public class Trainer {
+public class Trainer {  
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false, unique = true)
 	private Long id;
 	
-	@OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
 	@JoinColumn(name="user_id", nullable=false)
 	private User user;
 	
