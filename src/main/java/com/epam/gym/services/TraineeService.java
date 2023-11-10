@@ -1,8 +1,10 @@
 package com.epam.gym.services;
 
 import com.epam.gym.entities.Trainee;
+import com.epam.gym.payloads.TraineeProfileDTO;
 
 public interface TraineeService {
-	Trainee getTraineeByUsername(String username);
+	
+	TraineeProfileDTO getTraineeProfile(String username);
 
 }

@@ -24,8 +24,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Entity
 @Table(name="trainees", indexes= {
-		@Index(name="idx_trainee_userid",columnList="user_id")
-})
+		@Index(name="idx_trainee_userid",columnList="user_id")})
 public class Trainee {
 
 	@Id
