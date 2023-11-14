@@ -27,6 +27,4 @@ public class TrainingType {
     @Column(name = "training_type_name", nullable = false)
     @Enumerated(EnumType.STRING)
     private TrainingTypeEnum trainingTypeEnum;
-	
-	
 }

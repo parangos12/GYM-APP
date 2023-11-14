@@ -2,6 +2,7 @@ package com.epam.gym.entities;
 
 import java.time.LocalDate;
 
+import io.micrometer.common.lang.Nullable;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -36,6 +37,7 @@ public class Training {
 	@JoinColumn(name = "trainer_id",nullable=false)
 	private Trainer trainer;
 	
+	@Nullable
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name="training_type_id")
 	private TrainingType trainingType;

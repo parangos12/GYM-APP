@@ -1,8 +1,8 @@
 package com.epam.gym.entities;
 
 public enum TrainingTypeEnum {
-    fitness,
-    yoga,
+	fitness,
+	yoga,
     zumba,
     stretching,
     resistance;

@@ -25,7 +25,6 @@ public class User {
 	@Column(name="id",nullable=false,unique=true)
 	private Long id;
 	
-	@Column(name="first_name",nullable=false,length=255)
 	private String firstName;
 	
 	@Column(name="last_name",nullable=false,length = 255)

@@ -1,7 +1,11 @@
 package com.epam.gym.repositories;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.epam.gym.entities.Trainee;
@@ -11,7 +15,19 @@ import com.epam.gym.entities.User;
 
 @Repository
 public interface Trainee2TrainerRepository  extends JpaRepository<Trainee2Trainer, Long>{
+		
+	@Query("select t2t from Trainee2Trainer t2t  where t2t.trainee.id =:traineeID")
+	List<Trainee2Trainer> findByTraineeID(@Param("traineeID") Long traineeID);
 	
-	List<Trainee2Trainer> findAllByTrainee(Trainee trainee);
+	@Query("select t2t from Trainee2Trainer t2t  where t2t.trainee.user.username =:username")
+	Optional<Trainee2Trainer> findByUsername(@Param("username") String username);
+
+    @Modifying
+    @Query("delete from Trainee2Trainer t2t " +
+            "where t2t.trainee.user.username = :traineeUsername " +
+            "and t2t.trainer.user.username = :trainerUsername")
+    void deleteByTraineeAndTrainerUsername(
+            @Param("traineeUsername") String traineeUsername,
+            @Param("trainerUsername") String trainerUsername);
 
 }
