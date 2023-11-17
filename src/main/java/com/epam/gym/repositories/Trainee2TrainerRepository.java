@@ -19,6 +19,10 @@ public interface Trainee2TrainerRepository  extends JpaRepository<Trainee2Traine
 	@Query("select t2t from Trainee2Trainer t2t  where t2t.trainee.id =:traineeID")
 	List<Trainee2Trainer> findByTraineeID(@Param("traineeID") Long traineeID);
 	
+	@Query("select t2t from Trainee2Trainer t2t  where t2t.trainer.id =:trainerID")
+	List<Trainee2Trainer> findByTrainerID(@Param("trainerID") Long trainerID);
+
+	
 	@Query("select t2t from Trainee2Trainer t2t  where t2t.trainee.user.username =:username")
 	Optional<Trainee2Trainer> findByUsername(@Param("username") String username);
 
@@ -29,5 +33,10 @@ public interface Trainee2TrainerRepository  extends JpaRepository<Trainee2Traine
     void deleteByTraineeAndTrainerUsername(
             @Param("traineeUsername") String traineeUsername,
             @Param("trainerUsername") String trainerUsername);
+    
+    @Query(value = "SELECT t.user.username, t.user.firstName,t.user.lastName,t.specialization.trainingTypeEnum "
+    		+ "FROM Trainer t WHERE t.user.isActive=true "
+    		+ "AND t.id NOT IN (SELECT t2t.trainer.id FROM Trainee2Trainer t2t)")
+    List<Object[]> findActiveTrainersWithNoTrainees();
 
 }

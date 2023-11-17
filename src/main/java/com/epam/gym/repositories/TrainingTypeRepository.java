@@ -14,7 +14,5 @@ import com.epam.gym.entities.TrainingTypeEnum;
 public interface TrainingTypeRepository extends JpaRepository<TrainingType,Long>{
 
 	@Query("select t from TrainingType t where t.trainingTypeEnum=:trainingType")
-	Optional<TrainingType> findTrainingTypeBy(@Param("trainingType") TrainingTypeEnum  trainingType);
-
-	
+	TrainingType findTrainingTypeBy(@Param("trainingType") TrainingTypeEnum  trainingType);
 }

@@ -6,24 +6,30 @@ import java.util.Set;
 
 import org.springframework.data.repository.query.Param;
 
+import com.epam.gym.dto.UserCredentialsDTO;
+import com.epam.gym.dto.trainee.TraineeCreateDTO;
+import com.epam.gym.dto.trainee.TraineeDTO;
+import com.epam.gym.dto.trainee.TraineeTrainerDTO;
+import com.epam.gym.dto.trainee.TraineeUpdateDTO;
+import com.epam.gym.dto.trainee.TraineeUpdateTrainersDTO;
+import com.epam.gym.dto.trainee.TrainingsFilterDTO;
+import com.epam.gym.dto.trainer.TrainerDTO;
 import com.epam.gym.entities.Training;
 import com.epam.gym.entities.TrainingType;
 import com.epam.gym.entities.TrainingTypeEnum;
-import com.epam.gym.payloads.TraineeProfileDTO;
-import com.epam.gym.payloads.TrainerDTO;
 
 public interface TraineeService {
 	
-	TraineeProfileDTO getTraineeProfile(String username);
+	TraineeDTO getTraineeProfile(String username);
 
-	TraineeProfileDTO updateTraineeProfile(String username,TraineeProfileDTO traineeProfile);
+	TraineeDTO updateTraineeProfile(String username,TraineeUpdateDTO traineeUpdateDTO);
+	
+	UserCredentialsDTO registerNewTrainee(TraineeCreateDTO traineeCreateDTO);
 	
 	void deleteTrainee(String username);
 	
-	List<TrainerDTO> updateTraineTrainers(String username, List<String> trainerUsernames);
-	
-	List<Object[]> findTraineeTrainingList(String username,LocalDate periodFrom, LocalDate periodTo,
-			String trainerName, TrainingTypeEnum trainingType);
+	List<TraineeTrainerDTO> updateTraineTrainers(String username, TraineeUpdateTrainersDTO traineeUpdateTrainersDTO);
+		
+	List<Object[]> findTraineeTrainingList(String username,TrainingsFilterDTO trainingsFilterDTO);
 
-	
 }

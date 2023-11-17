@@ -24,6 +24,16 @@ public interface TrainingRepository extends JpaRepository<Training,Long>{
 	        @Param("periodFrom") LocalDate periodFrom, @Param("periodTo") LocalDate periodTo,
 	        @Param("trainerName") String trainerName, @Param("trainingType") TrainingTypeEnum  trainingType);
 	
+	@Query("SELECT t.trainingName, t.trainingDate, t.trainingType, t.trainingDuration, "
+	        + "t.trainee.user.username FROM Training t "
+	        + "WHERE t.trainer.user.username=:username "
+	        + "AND (:periodFrom IS NULL OR t.trainingDate>=:periodFrom) "
+	        + "AND (:periodTo IS NULL OR t.trainingDate<=:periodTo) "
+	        + "AND (:traineeName IS NULL OR t.trainee.user.username=:traineeName) ")
+	List<Object[]> findTrainerTrainingList(@Param("username")String username,
+	        @Param("periodFrom") LocalDate periodFrom, @Param("periodTo") LocalDate periodTo,
+	        @Param("traineeName") String traineeName);
+	
 	TrainingType findByTrainingType_TrainingTypeEnum(TrainingTypeEnum trainingTypeEnum);
 
 }

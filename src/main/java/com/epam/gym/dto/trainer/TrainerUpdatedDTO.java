@@ -1,11 +1,10 @@
-package com.epam.gym.payloads;
+package com.epam.gym.dto.trainer;
 
 import java.time.LocalDate;
+import java.util.List;
 
-import com.epam.gym.entities.Trainee;
-import com.epam.gym.entities.TrainingType;
+import com.epam.gym.dto.trainee.TraineeBasicProfileDTO;
 import com.epam.gym.entities.TrainingTypeEnum;
-import com.epam.gym.entities.User;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -14,14 +13,18 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class TrainerDTO {
+public class TrainerUpdatedDTO {
 	
 	private String username;
-
+	
 	private String firstName;
 	
 	private String lastName;
 	
-	private TrainingTypeEnum trainingTypeEnum;
+	private TrainingTypeEnum specialization;
+
+	private Boolean isActive;
+	
+	private List<TraineeBasicProfileDTO> trainees;
 
 }

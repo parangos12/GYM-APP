@@ -1,5 +1,6 @@
-package com.epam.gym.payloads;
+package com.epam.gym.dto.trainee;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
@@ -9,16 +10,12 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class TrainerProfileDTO {
+public class TraineeBasicProfileDTO {
 	
+	private String username;
+
 	private String firstName;
 	
 	private String lastName;
-	
-	private String specialization;
-
-	private Boolean isActive;
-	
-	private List<TraineeDTO> trainees;
 
 }
