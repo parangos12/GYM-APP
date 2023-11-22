@@ -8,10 +8,13 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 //import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.epam.gym.dto.trainee.TraineeTrainerDTO;
+import com.epam.gym.config.JwtService;
+import com.epam.gym.dto.AuthenticationResponse;
 import com.epam.gym.dto.UserCredentialsDTO;
 import com.epam.gym.dto.trainee.TraineeCreateDTO;
 import com.epam.gym.dto.trainee.TraineeDTO;
@@ -19,6 +22,9 @@ import com.epam.gym.dto.trainee.TraineeUpdateDTO;
 import com.epam.gym.dto.trainee.TraineeUpdateTrainersDTO;
 import com.epam.gym.dto.trainee.TrainingsFilterDTO;
 import com.epam.gym.dto.trainer.TrainerDTO;
+import com.epam.gym.entities.Role;
+import com.epam.gym.entities.Token;
+import com.epam.gym.entities.TokenType;
 import com.epam.gym.entities.Trainee;
 import com.epam.gym.entities.Trainee2Trainer;
 import com.epam.gym.entities.Trainer;
@@ -27,6 +33,7 @@ import com.epam.gym.entities.TrainingType;
 import com.epam.gym.entities.TrainingTypeEnum;
 import com.epam.gym.entities.User;
 import com.epam.gym.exceptions.ResourceNotFoundException;
+import com.epam.gym.repositories.TokenRepository;
 import com.epam.gym.repositories.Trainee2TrainerRepository;
 import com.epam.gym.repositories.TraineeRepository;
 import com.epam.gym.repositories.TrainerRepository;
@@ -35,9 +42,11 @@ import com.epam.gym.repositories.UserRepository;
 import com.epam.gym.services.TraineeService;
 
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class TraineeServiceImpl implements TraineeService{
 	
 	private final TraineeRepository traineeRepo;
@@ -45,18 +54,9 @@ public class TraineeServiceImpl implements TraineeService{
 	private final TrainingRepository trainingRepo;
 	private final Trainee2TrainerRepository trainee2trainerRepo;
 	private final UserRepository userRepo;
-	//private final PasswordEncoder passwordEncoder;
-
-
-	@Autowired
-	public TraineeServiceImpl(TraineeRepository traineeRepo,TrainerRepository trainerRepo,TrainingRepository trainingRepo,UserRepository userRepo,Trainee2TrainerRepository trainee2trainerRepo) {
-		this.traineeRepo = traineeRepo;
-		this.trainerRepo = trainerRepo;
-		this.trainingRepo = trainingRepo;
-		this.userRepo = userRepo;
-		this.trainee2trainerRepo = trainee2trainerRepo;
-		//this.passwordEncoder = passwordEncoder;
-	}
+	private final PasswordEncoder passwordEncoder;
+	private final JwtService jwtService;
+	private final TokenRepository tokenRepository;
 
 	@Override
 	public TraineeDTO getTraineeProfile(String username) {
@@ -130,7 +130,9 @@ public class TraineeServiceImpl implements TraineeService{
 		LocalDate periodFrom=trainingsFilterDTO.periodFrom();
 		LocalDate periodTo=trainingsFilterDTO.periodTo();
 		String trainerName=trainingsFilterDTO.trainerName();
-	    TrainingTypeEnum trainingType = TrainingTypeEnum.valueOf(trainingsFilterDTO.specialization().toLowerCase());
+		TrainingTypeEnum trainingType=null;
+		if(trainingsFilterDTO.specialization()!=null) {
+	    trainingType =TrainingTypeEnum.valueOf(trainingsFilterDTO.specialization().toLowerCase());}
 		return this.trainingRepo.findTraineeTrainingList(username, periodFrom, periodTo, trainerName, trainingType);
 	}
 
@@ -143,17 +145,28 @@ public class TraineeServiceImpl implements TraineeService{
 		LocalDate dateOfBirth=traineeCreateDTO.getDateOfBirth();
 
 		String username=generateUserName(firstName,lastName);
-		//String password=this.passwordEncoder.encode(generateRandomPassword());
-		String password=generateRandomPassword();
+		String passwordRetrieve=generateRandomPassword();
+		String passwordSaved=this.passwordEncoder.encode(passwordRetrieve);
 
-		User newUser=new User(null, firstName, lastName, username, password, isActive);
+		User newUser=new User(null, firstName, lastName, username, passwordSaved, isActive,Role.TRAINEE);
 		Trainee newTrainee=new Trainee(null,newUser,dateOfBirth,address);
 
-		this.traineeRepo.save(newTrainee);
-
-		
-		return new UserCredentialsDTO(username, password);
+		var savedUser=this.traineeRepo.save(newTrainee);
+		var jwtToken=jwtService.generateToken(newUser);
+		saveUserToken(newUser,jwtToken);
+		return new UserCredentialsDTO(username, passwordRetrieve,jwtToken);
 	}
+	  private void saveUserToken(User user, String jwtToken) {
+		    var token = Token.builder()
+		        .user(user)
+		        .token(jwtToken)
+		        .tokenType(TokenType.BEARER)
+		        .expired(false)
+		        .revoked(false)
+		        .build();
+		    tokenRepository.save(token);
+		  }
+
 	   public String generateUserName(String firstName,String lastName) {
 		   String userName = firstName + "." + lastName; 
 		   int serialNumber=0;	

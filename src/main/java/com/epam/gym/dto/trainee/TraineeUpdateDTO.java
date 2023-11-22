@@ -28,7 +28,6 @@ public class TraineeUpdateDTO {
 	@NotBlank(message = "Last name cannot be blank")
 	private String lastName;
 	
-	@NotBlank(message = "Date cannot be blank")
     @NotNull(message = "Date cannot be null")
 	@DateTimeFormat(pattern="yyyy-mm-dd")
 	@Past(message="Date must be in the past")
@@ -39,7 +38,6 @@ public class TraineeUpdateDTO {
 	@Size(min = 2, max = 250, message = "Address must be between 2 and 250 characters")
 	private String address;
 	
-	@NotBlank(message = "Active status cannot be blank")
     @NotNull(message = "Active status cannot be null")
 	private Boolean isActive;
 }

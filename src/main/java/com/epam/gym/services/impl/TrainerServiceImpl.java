@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.epam.gym.entities.Trainee2Trainer;
@@ -14,6 +15,7 @@ import com.epam.gym.entities.TrainingType;
 import com.epam.gym.entities.TrainingTypeEnum;
 import com.epam.gym.entities.User;
 import com.epam.gym.exceptions.ResourceNotFoundException;
+import com.epam.gym.config.JwtService;
 import com.epam.gym.dto.UserCredentialsDTO;
 import com.epam.gym.dto.trainee.TraineeBasicProfileDTO;
 import com.epam.gym.dto.trainee.TrainingsFilterDTO;
@@ -21,8 +23,10 @@ import com.epam.gym.dto.trainer.TrainerCreateDTO;
 import com.epam.gym.dto.trainer.TrainerDTO;
 import com.epam.gym.dto.trainer.TrainerUpdateDTO;
 import com.epam.gym.dto.trainer.TrainerUpdatedDTO;
+import com.epam.gym.entities.Role;
 import com.epam.gym.entities.Trainee;
 import com.epam.gym.repositories.Trainee2TrainerRepository;
+import com.epam.gym.repositories.TraineeRepository;
 import com.epam.gym.repositories.TrainerRepository;
 import com.epam.gym.repositories.TrainingRepository;
 import com.epam.gym.repositories.TrainingTypeRepository;
@@ -30,9 +34,12 @@ import com.epam.gym.repositories.UserRepository;
 import com.epam.gym.services.TrainerService;
 
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
+
 public class TrainerServiceImpl implements TrainerService{
 	
 	private final TrainerRepository trainerRepo;
@@ -40,15 +47,8 @@ public class TrainerServiceImpl implements TrainerService{
 	private final TrainingTypeRepository trainingTypeRepo;
 	private final TrainingRepository trainingRepo;
 	private final UserRepository userRepo;
-
-	@Autowired
-	public TrainerServiceImpl(TrainerRepository trainerRepo,Trainee2TrainerRepository trainee2trainerRepo,TrainingTypeRepository trainingTypeRepo,TrainingRepository trainingRepo,UserRepository userRepo) {
-		this.trainerRepo = trainerRepo;
-		this.trainee2trainerRepo=trainee2trainerRepo;
-		this.trainingTypeRepo=trainingTypeRepo;
-		this.trainingRepo=trainingRepo;
-		this.userRepo=userRepo;
-	}
+	private final PasswordEncoder passwordEncoder;
+	private final JwtService jwtService;
 
 	@Override
 	public TrainerDTO getTrainerProfile(String username) {
@@ -131,13 +131,15 @@ public class TrainerServiceImpl implements TrainerService{
         TrainingType trainingType = this.trainingTypeRepo.findTrainingTypeBy(trainingTypeEnum);
 
 		String username=generateUserName(firstName,lastName);
-		String password=generateRandomPassword();
+		String passwordRetrieve=generateRandomPassword();
+		String passwordSaved=this.passwordEncoder.encode(passwordRetrieve);
 
-		User newUser=new User(null, firstName, lastName, username, password, isActive);
+		User newUser=new User(null, firstName, lastName, username, passwordSaved, isActive,Role.TRAINER);
 		Trainer newTrainer=new Trainer(null, newUser, trainingType);
-		this.trainerRepo.save(newTrainer);
 		
-		return new UserCredentialsDTO(username, password);	}
+		this.trainerRepo.save(newTrainer);
+		var jwtToken=jwtService.generateToken(newUser);
+		return new UserCredentialsDTO(username, passwordRetrieve,jwtToken);	}
 	
 	   public String generateUserName(String firstName,String lastName) {
 		   String userName = firstName + "." + lastName; 

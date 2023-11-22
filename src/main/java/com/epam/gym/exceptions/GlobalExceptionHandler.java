@@ -25,6 +25,23 @@ public class GlobalExceptionHandler {
 		return new ResponseEntity<ApiResponse>(apiResponse,HttpStatus.NOT_FOUND);
 	}
 	
+	@ExceptionHandler(LogginDeniedException.class)
+	public ResponseEntity<ApiResponse> logginDeniedException(LogginDeniedException ex){
+		String message=ex.getMessage();
+		
+		ApiResponse apiResponse=new ApiResponse(message, false);
+		return new ResponseEntity<ApiResponse>(apiResponse,HttpStatus.FORBIDDEN);
+	}
+
+	
+	@ExceptionHandler(AccessDeniedException.class)
+	public ResponseEntity<ApiResponse> accessDeniedException(AccessDeniedException ex){
+		String message=ex.getMessage();
+		ApiResponse apiResponse=new ApiResponse(message, false);
+		return new ResponseEntity<ApiResponse>(apiResponse,HttpStatus.FORBIDDEN);
+	}
+
+	
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	public ResponseEntity<Map<String,String>> handleMethodArgsNotValidException(MethodArgumentNotValidException ex){
 		Map<String,String> resp=new HashMap<>();

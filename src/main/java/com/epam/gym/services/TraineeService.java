@@ -6,6 +6,7 @@ import java.util.Set;
 
 import org.springframework.data.repository.query.Param;
 
+import com.epam.gym.dto.AuthenticationResponse;
 import com.epam.gym.dto.UserCredentialsDTO;
 import com.epam.gym.dto.trainee.TraineeCreateDTO;
 import com.epam.gym.dto.trainee.TraineeDTO;

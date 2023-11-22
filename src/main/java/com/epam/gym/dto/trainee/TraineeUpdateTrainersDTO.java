@@ -20,4 +20,5 @@ public class TraineeUpdateTrainersDTO {
 	@NotNull(message = "Trainer usernames list is required")
 	@NotEmpty(message = "Trainer usernames cannot be empty") 
 	private List<String> trainerUsernames;
+	
 }
