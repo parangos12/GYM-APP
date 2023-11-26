@@ -6,9 +6,14 @@ import java.util.Map;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.aws.messaging.config.annotation.EnableSqs;
+import org.springframework.cloud.aws.messaging.core.QueueMessagingTemplate;
+import org.springframework.cloud.aws.messaging.listener.annotation.SqsListener;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
@@ -32,6 +37,7 @@ import com.epam.gym.dto.trainee.TraineeDTO;
 import com.epam.gym.dto.trainee.TraineeTrainerDTO;
 import com.epam.gym.dto.trainee.TraineeUpdateDTO;
 import com.epam.gym.dto.trainee.TraineeUpdateTrainersDTO;
+import com.epam.gym.dto.trainee.TrainingRequest;
 import com.epam.gym.dto.trainee.TrainingsFilterDTO;
 import com.epam.gym.dto.trainer.TrainerDTO;
 import com.epam.gym.entities.Trainee;
@@ -43,7 +49,11 @@ import com.epam.gym.exceptions.AccessDeniedException;
 import com.epam.gym.repositories.TrainingRepository;
 import com.epam.gym.services.AuthenticationService;
 import com.epam.gym.services.TraineeService;
+import com.epam.gym.services.TrainerService;
 import com.epam.gym.services.TrainingService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -57,9 +67,15 @@ import com.epam.gym.payloads.ApiResponse;
 public class TraineesController {
 
 	private final TraineeService traineeService;
+	private final TrainerService trainerService;
 	private final TrainingService trainingService;
 	private final AuthenticationService auhtService;
+	private final QueueMessagingTemplate queueMessagingTemplate;
+	
+	@Value("${amazon.sqs.endpoint}")
+	private String sqsEndpoint;
 
+	
 	@GetMapping("/{username}")
 	public ResponseEntity<TraineeDTO> getTraineeByUsername(@PathVariable String username) throws ResourceNotFoundException,AccessDeniedException{
 		if(!auhtService.hasPermission(username, "TRAINEE")) {
@@ -111,12 +127,20 @@ public class TraineesController {
 	}
 
 	@PostMapping("/trainings")
-	public ApiResponse saveTraineeTrainings(@Valid @RequestBody TrainingDTO trainingDTO)throws ResourceNotFoundException,AccessDeniedException{
+	public ApiResponse addTraineeTrainings(@Valid @RequestBody TrainingDTO trainingDTO)throws ResourceNotFoundException,AccessDeniedException, JsonProcessingException{
 		if(!auhtService.hasPermission(trainingDTO.getTraineeUsername(), "TRAINEE")) {
 			throw new AccessDeniedException(auhtService.actualUsername(),"to update trainings list of user",trainingDTO.getTraineeUsername());
 		}
 		this.trainingService.saveTraining(trainingDTO);
+		sendToTrainerReport(trainingDTO);
 		return new ApiResponse("Training saved sucesfully !!", true);
+	}
+	
+	public void sendToTrainerReport(TrainingDTO trainingDTO) throws JsonProcessingException {
+		TrainerDTO trainer=this.trainerService.getTrainerProfile(trainingDTO.getTrainerUsername());
+		TrainingRequest trainingRequest=new TrainingRequest(trainingDTO.getTrainerUsername(), 
+				trainer.getFirstName(), trainer.getLastName(), trainer.getIsActive(), trainingDTO.getTrainingDate(), trainingDTO.getTrainingDuration(), trainingDTO.getSpecialization(), "ADD");
+		queueMessagingTemplate.send(sqsEndpoint,MessageBuilder.withPayload(trainingRequest.toString()).build());
 	}
 	
 

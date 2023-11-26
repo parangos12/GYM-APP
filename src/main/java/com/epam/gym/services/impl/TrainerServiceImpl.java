@@ -165,4 +165,5 @@ public class TrainerServiceImpl implements TrainerService{
 		       .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
 		       .toString();}
 
+
 }
