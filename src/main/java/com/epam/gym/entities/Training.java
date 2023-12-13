@@ -3,7 +3,6 @@ package com.epam.gym.entities;
 import java.time.LocalDate;
 
 import io.micrometer.common.lang.Nullable;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;

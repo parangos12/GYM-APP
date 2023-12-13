@@ -4,7 +4,6 @@ import java.util.List;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
-import com.epam.gym.dto.trainee.*;
 import com.epam.gym.repositories.TrainerRepository;
 
 public class TrainerUsernamesValidator implements ConstraintValidator<ValidTrainerUsernames, List<String>> {

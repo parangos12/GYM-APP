@@ -37,27 +37,6 @@ public class AuthenticationServiceImpl implements AuthenticationService{
 	private final TokenRepository tokenRepository;
     private final LoginAttemptService attemptService;
 	
-//    @Override
-//    public AuthenticationResponse authenticate(@Valid AuthenticationDTO authDto) {
-//        
-//        String username = authDto.getUsername();
-//        
-//        if(attemptService.isBlocked(username)) {
-//            throw new LogginDeniedException(username,"msg"); 
-//        }
-//        
-//        authenticateUser(authDto);
-//        
-//        attemptService.loginSucceeded(username);
-//            
-//        var user = userRepo.findByUsername(username).orElseThrow();
-//        var jwtToken = jwtService.generateToken(user);
-//            
-//        revokeAllUserTokens(user); 
-//        saveUserToken(user, jwtToken);
-//            
-//        return AuthenticationResponse.builder().token(jwtToken).build();
-//    }
   @Override
   public AuthenticationResponse authenticate(@Valid AuthenticationDTO authDto) {
       
@@ -94,7 +73,7 @@ public class AuthenticationServiceImpl implements AuthenticationService{
        }
     }
 
-	  private void revokeAllUserTokens(User user) {
+	  public void revokeAllUserTokens(User user) {
 		    var validUserTokens = tokenRepository.findAllValidTokenByUser(user.getId());
 		    if (validUserTokens.isEmpty())
 		      return;
@@ -104,7 +83,7 @@ public class AuthenticationServiceImpl implements AuthenticationService{
 		    });
 		    tokenRepository.saveAll(validUserTokens);
 		  }
-	  private void saveUserToken(User user, String jwtToken) {
+	  public void saveUserToken(User user, String jwtToken) {
 		    var token = Token.builder()
 		        .user(user)
 		        .token(jwtToken)

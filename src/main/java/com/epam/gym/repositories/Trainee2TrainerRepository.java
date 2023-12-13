@@ -8,10 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.epam.gym.entities.Trainee;
 import com.epam.gym.entities.Trainee2Trainer;
-import com.epam.gym.entities.Trainer;
-import com.epam.gym.entities.User;
 
 @Repository
 public interface Trainee2TrainerRepository  extends JpaRepository<Trainee2Trainer, Long>{

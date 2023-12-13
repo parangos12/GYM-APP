@@ -1,6 +1,7 @@
 package com.epam.gym.controllers;
 
 import java.security.Principal;
+import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,13 +17,12 @@ import org.springframework.web.bind.annotation.RestController;
 import com.epam.gym.dto.AuthenticationResponse;
 import com.epam.gym.dto.ChangePasswordRequest;
 import com.epam.gym.dto.AuthenticationDTO;
-import com.epam.gym.dto.UserCredentialsDTO;
 import com.epam.gym.exceptions.LogginDeniedException;
 import com.epam.gym.services.AuthenticationService;
-import com.epam.gym.services.TraineeService;
-import com.epam.gym.services.TrainingService;
+import com.epam.gym.services.impl.CloudWatchLogger;
 import com.epam.gym.services.impl.LogoutService;
 
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -35,27 +35,54 @@ public class AuthController {
 	
 	private final AuthenticationService auhtService;
 	private final LogoutService logoutService;
-
+    private final CloudWatchLogger cloudWatchLogger;
+    private String username;
+    
 	@PostMapping("/authenticate")
 	public ResponseEntity<AuthenticationResponse> authenticateTrainee(@Valid @RequestBody AuthenticationDTO authTraineeDTO) throws LogginDeniedException{
-		AuthenticationResponse userCredentialsDTO=this.auhtService.authenticate(authTraineeDTO);
-		return new ResponseEntity<>(userCredentialsDTO, HttpStatus.CREATED);
+		try {
+			AuthenticationResponse userCredentialsDTO=this.auhtService.authenticate(authTraineeDTO);
+			cloudWatchLogger.logToCloudWatch(buildLogMessage("authenticateTrainee", "INFO", "User authenticated succesfully", authTraineeDTO.getUsername()));
+			this.username=authTraineeDTO.getUsername();
+			return new ResponseEntity<>(userCredentialsDTO, HttpStatus.CREATED);
+		}catch (Exception e) {
+			cloudWatchLogger.logToCloudWatch(buildLogMessage("authenticateTrainee", "ERROR", "Error ocurred trying to authenticate user", authTraineeDTO.getUsername()));
+            throw e;
+		}
 	}
-	
-	@PatchMapping("{username}/changePassword")
+    
+	@PatchMapping("/{username}/changePassword")
 	public ResponseEntity<?> changePassword(@PathVariable String username, @RequestBody ChangePasswordRequest request,
 			Principal connectedUser
-			){
-		auhtService.changePassword(username,request, connectedUser);
-		return ResponseEntity.ok().build();
+			)throws IllegalStateException{
+		try {
+			auhtService.changePassword(username,request, connectedUser);
+			cloudWatchLogger.logToCloudWatch(buildLogMessage("changePassword", "INFO", "User's password changed succesfully",username));
+			return ResponseEntity.ok().build();
+		}catch (Exception e) {
+			cloudWatchLogger.logToCloudWatch(buildLogMessage("changePassword", "ERROR", "Error ocurred trying to change user's password",username));
+            throw e;
+		}
 	}
 	
 	@PostMapping("/logout")
 	public ResponseEntity<?> logout(HttpServletRequest request,HttpServletResponse response){
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		logoutService.logout(request, response, authentication);
-		return ResponseEntity.ok().build();
+    	try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    		logoutService.logout(request, response, authentication);
+			cloudWatchLogger.logToCloudWatch(buildLogMessage("logout", "INFO", "User's session logged out sucesfully",this.username));
+    		return ResponseEntity.ok().build();
+    	}catch (Exception e) {
+			cloudWatchLogger.logToCloudWatch(buildLogMessage("logout", "ERROR", "Error ocurred trying to log user's session out",this.username));
+            throw e;
+		}
 	}
+    
+    
+    private String buildLogMessage(String functionName, String logType, String description, String username) {
+        return String.format("UUID |%s| LogType |%s| Description |%s| Classname |%s| FunctionName |%s| Username |%s",
+                UUID.randomUUID().toString(), logType, description,getClass().getName(), functionName, username);
+    }
 
 
 }

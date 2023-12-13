@@ -6,39 +6,34 @@ import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
-import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
-import com.epam.gym.payloads.ApiResponse;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
 	@ExceptionHandler(ResourceNotFoundException.class)
-	public ResponseEntity<ApiResponse> resourceNotFoundExceptionHandler(ResourceNotFoundException ex){
+	public ResponseEntity<APIResponse> resourceNotFoundExceptionHandler(ResourceNotFoundException ex){
 		String message=ex.getMessage();
-		ApiResponse apiResponse=new ApiResponse(message, false);
-		return new ResponseEntity<ApiResponse>(apiResponse,HttpStatus.NOT_FOUND);
+		APIResponse apiResponse=new APIResponse(message, false);
+		return new ResponseEntity<APIResponse>(apiResponse,HttpStatus.NOT_FOUND);
 	}
 	
 	@ExceptionHandler(LogginDeniedException.class)
-	public ResponseEntity<ApiResponse> logginDeniedException(LogginDeniedException ex){
+	public ResponseEntity<APIResponse> logginDeniedException(LogginDeniedException ex){
 		String message=ex.getMessage();
 		
-		ApiResponse apiResponse=new ApiResponse(message, false);
-		return new ResponseEntity<ApiResponse>(apiResponse,HttpStatus.FORBIDDEN);
+		APIResponse apiResponse=new APIResponse(message, false);
+		return new ResponseEntity<APIResponse>(apiResponse,HttpStatus.FORBIDDEN);
 	}
 
 	
 	@ExceptionHandler(AccessDeniedException.class)
-	public ResponseEntity<ApiResponse> accessDeniedException(AccessDeniedException ex){
+	public ResponseEntity<APIResponse> accessDeniedException(AccessDeniedException ex){
 		String message=ex.getMessage();
-		ApiResponse apiResponse=new ApiResponse(message, false);
-		return new ResponseEntity<ApiResponse>(apiResponse,HttpStatus.FORBIDDEN);
+		APIResponse apiResponse=new APIResponse(message, false);
+		return new ResponseEntity<APIResponse>(apiResponse,HttpStatus.FORBIDDEN);
 	}
 
 	
@@ -53,12 +48,10 @@ public class GlobalExceptionHandler {
 	}
 	
 	@ExceptionHandler(ApiException.class)
-	public ResponseEntity<ApiResponse> handleApiException(ApiException ex){
+	public ResponseEntity<APIResponse> handleApiException(ApiException ex){
 		String message=ex.getMessage();
-		ApiResponse apiResponse=new ApiResponse(message, true);
-		return new ResponseEntity<ApiResponse>(apiResponse, HttpStatus.BAD_REQUEST);
+		APIResponse apiResponse=new APIResponse(message, true);
+		return new ResponseEntity<APIResponse>(apiResponse, HttpStatus.BAD_REQUEST);
 	}
-	
-
-	
+		
 }

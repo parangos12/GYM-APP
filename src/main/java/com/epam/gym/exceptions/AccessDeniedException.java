@@ -7,9 +7,11 @@ import lombok.Setter;
 @Setter
 public class AccessDeniedException extends RuntimeException{
 	
-	String user;
-	String action;
-	String externalUser;
+    private String user;
+
+    private String action;
+
+    private String externalUser;
 	
 	public AccessDeniedException(String user, String action, String externalUser) {
 		super(String.format("%s Unauthorized access %s : %s",user,action,externalUser));
@@ -17,5 +19,8 @@ public class AccessDeniedException extends RuntimeException{
 		this.action = action;
 		this.externalUser = externalUser;
 	}
-
+	
+    public AccessDeniedException() {
+        super();
+    }
 }

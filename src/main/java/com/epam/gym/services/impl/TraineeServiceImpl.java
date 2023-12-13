@@ -4,32 +4,25 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
-import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 //import org.springframework.security.crypto.password.PasswordEncoder;
 
-import com.epam.gym.dto.trainee.TraineeTrainerDTO;
 import com.epam.gym.config.JwtService;
-import com.epam.gym.dto.AuthenticationResponse;
+import com.epam.gym.dto.TraineeCreateDTO;
+import com.epam.gym.dto.TraineeDTO;
+import com.epam.gym.dto.TraineeTrainerDTO;
+import com.epam.gym.dto.TraineeUpdateDTO;
+import com.epam.gym.dto.TraineeUpdateTrainersDTO;
+import com.epam.gym.dto.TrainingsFilterDTO;
 import com.epam.gym.dto.UserCredentialsDTO;
-import com.epam.gym.dto.trainee.TraineeCreateDTO;
-import com.epam.gym.dto.trainee.TraineeDTO;
-import com.epam.gym.dto.trainee.TraineeUpdateDTO;
-import com.epam.gym.dto.trainee.TraineeUpdateTrainersDTO;
-import com.epam.gym.dto.trainee.TrainingsFilterDTO;
-import com.epam.gym.dto.trainer.TrainerDTO;
 import com.epam.gym.entities.Role;
 import com.epam.gym.entities.Token;
 import com.epam.gym.entities.TokenType;
 import com.epam.gym.entities.Trainee;
 import com.epam.gym.entities.Trainee2Trainer;
 import com.epam.gym.entities.Trainer;
-import com.epam.gym.entities.Training;
-import com.epam.gym.entities.TrainingType;
 import com.epam.gym.entities.TrainingTypeEnum;
 import com.epam.gym.entities.User;
 import com.epam.gym.exceptions.ResourceNotFoundException;
@@ -126,7 +119,6 @@ public class TraineeServiceImpl implements TraineeService{
 
 	@Override
 	public List<Object[]> findTraineeTrainingList(String username,TrainingsFilterDTO trainingsFilterDTO) {
-		Trainee trainee=this.traineeRepo.findByUsername(username).orElseThrow(()->new ResourceNotFoundException("User","username" , username)); 
 		LocalDate periodFrom=trainingsFilterDTO.periodFrom();
 		LocalDate periodTo=trainingsFilterDTO.periodTo();
 		String trainerName=trainingsFilterDTO.trainerName();
@@ -153,7 +145,7 @@ public class TraineeServiceImpl implements TraineeService{
 
 		var savedUser=this.traineeRepo.save(newTrainee);
 		var jwtToken=jwtService.generateToken(newUser);
-		saveUserToken(newUser,jwtToken);
+		saveUserToken(newUser,jwtToken);	
 		return new UserCredentialsDTO(username, passwordRetrieve,jwtToken);
 	}
 	  private void saveUserToken(User user, String jwtToken) {

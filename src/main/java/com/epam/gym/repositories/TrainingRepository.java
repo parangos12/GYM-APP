@@ -8,7 +8,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.epam.gym.entities.Training;
-import com.epam.gym.entities.TrainingType;
 import com.epam.gym.entities.TrainingTypeEnum;
 
 @Repository
@@ -34,6 +33,4 @@ public interface TrainingRepository extends JpaRepository<Training,Long>{
 	        @Param("periodFrom") LocalDate periodFrom, @Param("periodTo") LocalDate periodTo,
 	        @Param("traineeName") String traineeName);
 	
-	TrainingType findByTrainingType_TrainingTypeEnum(TrainingTypeEnum trainingTypeEnum);
-
 }

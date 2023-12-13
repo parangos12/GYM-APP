@@ -1,6 +1,5 @@
 package com.epam.gym.repositories;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,6 +14,5 @@ public interface TrainerRepository extends JpaRepository<Trainer,Long>{
 	
 	@Query("select t from Trainer t where t.user.username =:username")
 	Optional<Trainer> findTrainerByUsername(@Param("username") String username);
-
 
 }

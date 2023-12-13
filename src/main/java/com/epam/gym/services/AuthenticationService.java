@@ -6,7 +6,6 @@ import com.epam.gym.dto.ChangePasswordRequest;
 import java.security.Principal;
 
 import com.epam.gym.dto.AuthenticationDTO;
-import com.epam.gym.dto.UserCredentialsDTO;
 
 import jakarta.validation.Valid;
 

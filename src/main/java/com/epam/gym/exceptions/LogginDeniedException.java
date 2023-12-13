@@ -1,6 +1,5 @@
 package com.epam.gym.exceptions;
 
-import java.util.concurrent.atomic.AtomicInteger;
 
 import lombok.Getter;
 import lombok.Setter;

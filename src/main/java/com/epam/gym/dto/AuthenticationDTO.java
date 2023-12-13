@@ -1,8 +1,5 @@
 package com.epam.gym.dto;
 
-import java.time.LocalDate;
-
-import com.epam.gym.dto.trainee.TraineeCreateDTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

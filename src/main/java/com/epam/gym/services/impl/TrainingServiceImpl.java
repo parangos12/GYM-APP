@@ -39,11 +39,10 @@ public class TrainingServiceImpl implements TrainingService{
 	public void saveTraining(TrainingDTO trainingDTO) {
 		Trainee trainee=this.traineeRepo.findByUsername(trainingDTO.getTraineeUsername()).orElseThrow(()->new ResourceNotFoundException("User","username" , trainingDTO.getTraineeUsername())); 
 		Trainer trainer=this.trainerRepo.findTrainerByUsername(trainingDTO.getTrainerUsername()).orElseThrow(()->new ResourceNotFoundException("User","username" , trainingDTO.getTrainerUsername())); 
-		
 	    TrainingTypeEnum trainingTypeEnum = TrainingTypeEnum.valueOf(trainingDTO.getSpecialization().toLowerCase());
         TrainingType trainingType = this.trainingTypeRepo.findTrainingTypeBy(trainingTypeEnum);
         trainer.setSpecialization(trainingType);
-
+        System.out.println(trainingType);
 		
 		String trainingName=trainingDTO.getTrainingName();
 		LocalDate trainingDate=trainingDTO.getTrainingDate();

@@ -1,0 +1,636 @@
+openapi: 3.0.1
+info:
+  title: Trainee Microservice 
+  description: The Gym App is a fitness management system employing a microservices
+    architecture with a key focus on the Trainee Microservice. Built using Spring
+    Boot, the RESTful APIs ensure seamless integration. Deployed on AWS ECS, the app
+    uses RDS (MySQL) for data storage, guaranteeing scalability, reliability, and
+    efficient management of member-related information.
+  termsOfService: https://www.example.com/terms-of-service
+  contact:
+    name: Pedro Bukele
+    url: https://github.com/parangos12
+    email: parangos@eafit.edu.co
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+  version: '1.0'
+servers:
+- url: http://localhost
+  description: Local Development
+- url: http://Gym-App-LoadBalancer-1278356267.us-east-1.elb.amazonaws.com
+  description: Production
+tags:
+- name: Trainees RESTFul API
+  description: Operations on trainees
+- name: Authentication RESTFul API
+  description: Authentication operations
+paths:
+  "/api/v1/trainees/{username}":
+    get:
+      tags:
+      - Trainees RESTFul API
+      summary: Get trainee details
+      description: Get details of the trainee with given username
+      operationId: getTraineeByUsername
+      parameters:
+      - name: username
+        in: path
+        description: Username of the trainee
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Trainee found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/TraineeDTO"
+        '401':
+          description: Unauthorized - Generic
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/UnauthorizedError"
+        '403':
+          description: Forbidden resource's access
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/AccessDeniedError"
+      security:
+      - Bearer Authentication: []
+    put:
+      tags:
+      - Trainees RESTFul API
+      summary: Update trainee details
+      description: Updates details of the trainee with given username
+      operationId: updateTraineeProfile
+      parameters:
+      - name: username
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/TraineeUpdateDTO"
+        required: true
+      responses:
+        '201':
+          description: Trainee Update
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/TraineeDTO"
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/BadRequest"
+        '401':
+          description: Unauthorized - Generic
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/UnauthorizedError"
+        '403':
+          description: Forbidden resource's access
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/AccessDeniedError"
+    delete:
+      tags:
+      - Trainees RESTFul API
+      summary: Delete trainee
+      description: Deletes a trainee for the given username
+      operationId: deleteTrarinee
+      parameters:
+      - name: username
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Deleted trainee
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Delete trainee"
+        '401':
+          description: Unauthorized - Generic
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/UnauthorizedError"
+        '403':
+          description: Forbidden resource's access
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Delete Trainee response"
+      security:
+      - Bearer Authentication: []
+  "/api/v1/trainees/{username}/trainers":
+    put:
+      tags:
+      - Trainees RESTFul API
+      summary: Update trainee's trainers
+      description: Updates the trainers mapped to the given trainee
+      operationId: updateTraineTrainers
+      parameters:
+      - name: username
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/TraineeUpdateTrainersDTO"
+        required: true
+      responses:
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/BadRequest"
+        '401':
+          description: Unauthorized - Generic
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/UnauthorizedError"
+        '403':
+          description: Forbidden resource's access
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/AccessDeniedError"
+      security:
+      - Bearer Authentication: []
+  "/api/v1/trainees/trainings":
+    post:
+      tags:
+      - Trainees RESTFul API
+      summary: Add trainee's trainings
+      description: Add the trainings of the given trainee
+      operationId: addTraineeTrainings
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/TrainingDTO"
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            "*/*":
+              schema:
+                "$ref": "#/components/schemas/APIResponse"
+      security:
+      - Bearer Authentication: []
+  "/api/v1/trainees/auth/register":
+    post:
+      tags:
+      - Trainees RESTFul API
+      summary: Register new trainee
+      description: Registers a new trainee in the system
+      operationId: registerTrainee
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/TraineeCreateDTO"
+        required: true
+      responses:
+        '201':
+          description: Trainee created
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/TraineeCreation"
+      security:
+      - Bearer Authentication: []
+  "/api/v1/auth/logout":
+    post:
+      tags:
+      - Authentication RESTFul API
+      summary: Log out the user's session
+      description: Log out the user's session
+      operationId: logout
+      responses:
+        '200':
+          description: OK
+          content:
+            "*/*":
+              schema:
+                type: object
+  "/api/v1/auth/authenticate":
+    post:
+      tags:
+      - Authentication RESTFul API
+      summary: Authenticate a trainee
+      description: Authenticate a trainee in the system
+      operationId: authenticateTrainee
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/AuthenticationDTO"
+        required: true
+      responses:
+        '201':
+          description: Success Login
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/LoginSuccessResponse"
+        '403':
+          description: Wrong credentials
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/WrongCredentials"
+  "/api/v1/auth/{username}/changePassword":
+    patch:
+      tags:
+      - Authentication RESTFul API
+      summary: Change user'spassword
+      description: Change user'spassword
+      operationId: changePassword
+      parameters:
+      - name: username
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/ChangePasswordRequest"
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            "*/*":
+              schema:
+                type: object
+  "/api/v1/trainees/{username}/trainings":
+    get:
+      tags:
+      - Trainees RESTFul API
+      summary: Get trainee's trainings
+      description: Get the trainings of the given trainee
+      operationId: getTraineeTrainingList
+      parameters:
+      - name: username
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: trainingsFilterDTO
+        in: query
+        required: true
+        schema:
+          "$ref": "#/components/schemas/TrainingsFilterDTO"
+      responses:
+        '200':
+          description: Trainings list found
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/Trainings List"
+        '401':
+          description: Unauthorized - Generic
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/UnauthorizedError"
+        '403':
+          description: Forbidden resource's access
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/AccessDeniedError"
+      security:
+      - Bearer Authentication: []
+components:
+  schemas:
+    TraineeUpdateDTO:
+      required:
+      - address
+      - firstName
+      - isActive
+      - lastName
+      type: object
+      properties:
+        firstName:
+          maxLength: 50
+          minLength: 1
+          type: string
+        lastName:
+          maxLength: 50
+          minLength: 1
+          type: string
+        dateOfBirth:
+          type: string
+          format: date
+        address:
+          maxLength: 250
+          minLength: 2
+          type: string
+        isActive:
+          type: boolean
+    TraineeDTO:
+      type: object
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        dateOfBirth:
+          type: string
+          format: date
+        address:
+          type: string
+        isActive:
+          type: boolean
+        trainers:
+          type: array
+          items:
+            "$ref": "#/components/schemas/TraineeTrainerDTO"
+    TraineeTrainerDTO:
+      type: object
+      properties:
+        username:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        specialization:
+          type: string
+          enum:
+          - fitness
+          - yoga
+          - zumba
+          - stretching
+          - resistance
+    AccessDeniedError:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Username attempted the access
+          example: 'Jose.Arango_10 Unauthorized access to get trainings list of user
+            : Jesus.Arango_11'
+        success:
+          type: string
+          description: State of the request
+          example: 'false'
+      description: Access denied error response
+    BadRequest:
+      type: object
+      properties:
+        firstName:
+          type: string
+          description: Username attempted the access
+          example: First name cannot be blank
+        lastName:
+          type: string
+          description: State of the request
+          example: Last name cannot be blank
+        dateOfBirth:
+          type: string
+          description: State of the request
+          example: Address cannot be blank
+        address:
+          type: string
+          description: State of the request
+          example: 'false'
+        isActive:
+          type: string
+          description: State of the request
+          example: 'true'
+      description: Bad Request error response
+    UnauthorizedError:
+      type: object
+      properties:
+        serversMessage:
+          type: string
+          description: Message of not authentication yet
+          example: Please login to access resource
+      description: Access denied error response
+    TraineeUpdateTrainersDTO:
+      required:
+      - trainerUsernames
+      type: object
+      properties:
+        trainerUsernames:
+          type: array
+          items:
+            type: string
+    TrainingDTO:
+      required:
+      - specialization
+      - traineeUsername
+      - trainerUsername
+      - trainingDuration
+      - trainingName
+      type: object
+      properties:
+        traineeUsername:
+          maxLength: 50
+          minLength: 1
+          type: string
+        trainerUsername:
+          maxLength: 50
+          minLength: 1
+          type: string
+        specialization:
+          pattern: fitness|yoga|zumba|stretching|resistance
+          type: string
+        trainingName:
+          maxLength: 50
+          minLength: 1
+          type: string
+        trainingDate:
+          type: string
+          format: date
+        trainingDuration:
+          maximum: 24
+          minimum: 0
+          type: number
+          format: float
+    APIResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        success:
+          type: boolean
+    TraineeCreateDTO:
+      required:
+      - firstName
+      - lastName
+      type: object
+      properties:
+        firstName:
+          maxLength: 50
+          minLength: 1
+          type: string
+        lastName:
+          maxLength: 50
+          minLength: 1
+          type: string
+        dateOfBirth:
+          type: string
+          format: date
+        address:
+          maxLength: 250
+          minLength: 2
+          type: string
+    TraineeCreation:
+      type: object
+      properties:
+        username:
+          type: string
+          description: Username attempted the access
+          example: Jose.Arango_10
+        password:
+          type: string
+          description: Username attempted the access
+          example: yf8RRgxZ9Q
+        jwt:
+          type: string
+          description: State of the request
+          example: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJKb3NlLkFyYW5nb18xMCIsImlhdCI6MTcwMjM5NjI4OSwiZXhwIjoxNzAyMzk3NzI5fQ.82FQMuvmIyqoZOPfCm4XInAFQbYZNiLBzS_5_QRBhUM
+      description: Access denied error response
+    AuthenticationDTO:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+    LoginSuccessResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          description: Username attempted the access
+          example: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJKb3NlLkFyYW5nb18xMCIsImlhdCI6MTcwMjM5ODg1OCwiZXhwIjoxNzAyNDAwMjk4fQ.0MoIoEbHyaTgYNpUd3tNIMxWdGRXS0AR9eNWrS5Kauw
+      description: Access denied error response
+    WrongCredentials:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Username attempted the access
+          example: " has entered wrong credentials Jose.Arango_444241"
+        success:
+          type: string
+          description: State of the request
+          example: 'false'
+      description: Wrong credentials error response
+    ChangePasswordRequest:
+      type: object
+      properties:
+        currentPassword:
+          type: string
+        newPassword:
+          type: string
+        confirmationPassword:
+          type: string
+    TrainingsFilterDTO:
+      type: object
+      properties:
+        periodFrom:
+          type: string
+          format: date
+        periodTo:
+          type: string
+          format: date
+        trainerName:
+          type: string
+        traineeName:
+          type: string
+        specialization:
+          pattern: fitness|yoga|zumba|stretching|resistance
+          type: string
+    TrainingDetails:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Training ID
+          format: int64
+        trainingTypeEnum:
+          type: string
+          description: Training type
+      description: Training details
+    Trainings List:
+      type: object
+      properties:
+        trainingName:
+          type: string
+          description: Training name
+          example: Cycling class
+        trainingDate:
+          type: string
+          description: Training date
+          format: date
+        trainingDetails:
+          "$ref": "#/components/schemas/TrainingDetails"
+        trainingDuration:
+          type: number
+          description: Duration
+          format: double
+          example: 1.5
+        trainerUsername:
+          type: string
+          description: Trainer
+          example: Felipe
+      description: Trainings List Found
+    Delete trainee:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Username is successfully deleted !!
+        success:
+          type: string
+          description: State of the request
+          example: 'true'
+      description: Deleted trainee sucesfully
+    Delete Trainee response:
+      type: object
+      properties:
+        message:
+          type: string
+          example: 'Jose.Arango_10 Unauthorized access to delete profile of user :
+            rdibbeq'
+        success:
+          type: string
+          description: State of the request
+          example: 'false'
+      description: Delete trainee error response
+  securitySchemes:
+    Bearer Authentication:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
